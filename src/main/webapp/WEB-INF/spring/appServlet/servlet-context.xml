@@ -49,13 +49,24 @@
 	<context:component-scan
 		base-package="com.sds.testprovider.controller"></context:component-scan>
 
-	<bean class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+	<bean
+		class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
 		<property name="exceptionMappings">
 			<props>
 				<prop key="org.thinker.oauth.OAuthException">oauthException</prop>
 				<prop key="java.lang.Exception">basicException</prop>
-<!-- 				<prop key="java.lang.Exception">basicException</prop> -->
+				<!-- <prop key="java.lang.Exception">basicException</prop> -->
 			</props>
 		</property>
 	</bean>
+
+
+	<mvc:interceptors>
+		<mvc:interceptor>
+			<mvc:mapping path="/myinfo" />
+			<!-- mvc:exclude-mapping path="/login/**"/  	// 제외시키기-->
+			<bean id="OAuthValidateInterceptor"
+				class="com.sds.testprovider.util.OAuthValidateInterceptor"></bean>
+		</mvc:interceptor>
+	</mvc:interceptors>
 </beans>

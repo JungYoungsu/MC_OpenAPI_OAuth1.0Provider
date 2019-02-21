@@ -34,17 +34,23 @@ public class MyInfoController {
 	@RequestMapping(value = "/myinfo")
 	public ModelAndView getMyInfo(HttpServletRequest request) throws Exception {
 		ModelAndView mav = new ModelAndView();
-		try {
+		/*try {
 			UsersVO usersVO = validateOAuthToken(request);
 			mav.setView(jsonView);
 			mav.addObject("data", usersVO);
 		} catch (Exception e) {
 			throw new OAuthException("접근 불가!!");
-		}
+		}*/
+		
+		
+		UsersVO usersVO = (UsersVO) request.getAttribute("user");
+		mav.setView(jsonView);
+		mav.addObject("data", usersVO);
+		
 		return mav;
 	}
 
-	// OAuthToken이 유효하다면 접근 가능!
+	/*// OAuthToken이 유효하다면 접근 가능!
 	private UsersVO validateOAuthToken(HttpServletRequest request) throws Exception {
 		// 아래 return 문을 주석 처리하고 코드를 작성합니다.
 		OAuthTokenParam param = new OAuthTokenParam(request);
@@ -56,5 +62,5 @@ public class MyInfoController {
 		param.validateRequestToken(consumerVO.getConsumerSecret(), usersVO.getPassword());
 
 		return usersVO;
-	}
+	}*/
 }
