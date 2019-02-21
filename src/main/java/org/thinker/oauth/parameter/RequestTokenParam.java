@@ -3,6 +3,7 @@ package org.thinker.oauth.parameter;
 import javax.servlet.http.HttpServletRequest;
 
 import org.thinker.oauth.util.HmacSHA1;
+import org.thinker.oauth.util.OAuthException;
 import org.thinker.oauth.util.OAuthMsgConstants;
 import org.thinker.oauth.util.OAuthUtil;
 
@@ -62,7 +63,7 @@ public class RequestTokenParam {
 		System.out.println("###" + valid);
 		
 		if (!valid) 
-			throw new Exception("signature is invalid!");
+			throw new OAuthException("signature is invalid!");
 		
 		//timestmap 가 클라이언트에서 보내온 timestamp와 차이가 많이 나면 
 		String timeStampNow = OAuthUtil.getTimeStamp();
