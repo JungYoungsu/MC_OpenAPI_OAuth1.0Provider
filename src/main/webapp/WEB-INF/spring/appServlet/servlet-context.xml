@@ -63,7 +63,7 @@
 
 	<mvc:interceptors>
 		<mvc:interceptor>
-			<mvc:mapping path="/myinfo" />
+			<mvc:mapping path="/myinfo" /><!-- 서블릿 path 다음의 뒤의 path 만 쓰기 -->
 			<!-- mvc:exclude-mapping path="/login/**"/  	// 제외시키기-->
 			<bean id="OAuthValidateInterceptor"
 				class="com.sds.testprovider.util.OAuthValidateInterceptor"></bean>
