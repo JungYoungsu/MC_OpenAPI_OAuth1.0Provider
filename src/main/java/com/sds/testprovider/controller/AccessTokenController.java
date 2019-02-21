@@ -33,6 +33,39 @@ public class AccessTokenController {
 	@RequestMapping(value = "access_token")
 	public ModelAndView getAccessToken(HttpServletRequest request) throws Exception {
 		// 아래 return 문을 주석 처리하고 코드를 작성합니다.
-		return null;
+
+		// 1. 파라미터 파싱
+		AccessTokenParam param = new AccessTokenParam(request);
+		// 1.1 DB테이블에서 consumer, requestToken, User 정보 읽음
+		// ConsumerSecret, Password, Verifier
+		ConsumerVO consumerVO = consumerService.selectByConsumerKey(param.getConsumerKey());
+		RequestTokenVO requestTokenVO = requestTokenService.getRequestToken(param.getRequestToken());
+		UsersVO usersVO = usersService.selectUserByUserNo(requestTokenVO.getUserNo());
+
+		ModelAndView mav = new ModelAndView();
+		mav.setViewName("access_token");
+
+		try { // 2.Signature Validation!! 유효하지 않으면 예외 발생!
+			param.validateRequestToken(requestTokenVO.getRequestTokenSecret(), requestTokenVO.getVerifier(),
+					consumerVO.getConsumerSecret());
+			// 2.1 유효하다면 RequestToken테이블의 레코드 삭제 : 임시 토큰이기 때문에
+			requestTokenService.deleteRequestToken(requestTokenVO.getRequestToken());
+
+			// 3. AccessToken 생성
+			AccessTokenVO accessTokenVO = TokenGenerator.generateAccessToken(usersVO, consumerVO);
+
+			StringBuilder sb = new StringBuilder();
+			sb.append(OAuthMsgConstants.OAUTH_TOKEN + "=" + accessTokenVO.getAccessToken() + "&");
+			sb.append(OAuthMsgConstants.OAUTH_TOKEN_SECRET + "=" + accessTokenVO.getAccessTokenSecret() + "&");
+			sb.append("userno=" + accessTokenVO.getUserNo() + "&");
+			sb.append("userid=" + accessTokenVO.getUserID());
+
+			mav.addObject("isValid", true);
+			mav.addObject("message", sb.toString());
+		} catch (Exception e) {
+			mav.addObject("isValid", false);
+			mav.addObject("message", e.getMessage());
+		}
+		return mav;
 	}
 }
