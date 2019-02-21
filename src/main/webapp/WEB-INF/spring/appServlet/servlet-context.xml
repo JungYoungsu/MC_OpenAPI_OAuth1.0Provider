@@ -54,6 +54,7 @@
 			<props>
 				<prop key="org.thinker.oauth.OAuthException">oauthException</prop>
 				<prop key="java.lang.Exception">basicException</prop>
+<!-- 				<prop key="java.lang.Exception">basicException</prop> -->
 			</props>
 		</property>
 	</bean>
