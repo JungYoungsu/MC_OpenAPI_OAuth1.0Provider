@@ -26,6 +26,42 @@ public class RequestTokenController {
 	@RequestMapping(value = "request_token")
 	public ModelAndView requestToken(HttpServletRequest request) throws Exception {
 		// 이곳에 코드를 작성합니다. 아래 코드는 삭제하시고 작성하세요.
-		return null;
+		// !!! MC_OpenAPI_OAuth1.0Test\TestProvider_OAuth 에서 테스트 !!!
+
+		// 1. QueryString 또는 Post 파라미터 파싱
+		RequestTokenParam param = new RequestTokenParam(request);
+
+		// 2. tbl_ouath_key 테이블에서 ConsumerSecret 정보 읽어옴.
+		ConsumerVO consumerVO = consumerService.selectByConsumerKey(param.getConsumerKey());
+		String consumerSecret = consumerVO.getConsumerSecret();
+
+		ModelAndView mav = new ModelAndView();
+		mav.setViewName("request_token");
+		try {
+			// 3. Signature validation . 유효하지 않다면 예외 발생
+			param.validateRequestToken(consumerSecret);
+			// 4. 유효하다면 RequestToken 생성하여 tbl_request_token 테이블에 저장
+			RequestTokenVO tokenVO = new RequestTokenVO();
+			tokenVO.setConsumerKey(consumerVO.getConsumerKey());
+			tokenVO.setCallback(param.getCallback());
+			TokenGenerator.generateRequestToken(tokenVO);
+			requestTokenService.createRequestToken(tokenVO);
+
+			String oauth_callback_confirmed = "true";
+
+			StringBuilder builder = new StringBuilder();
+			builder.append("oauth_token=" + tokenVO.getRequestToken() + "&");
+			builder.append("oauth_token_secret=" + tokenVO.getRequestTokenSecret() + "&");
+			builder.append("ouath_callback_confirmed=" + oauth_callback_confirmed);
+
+			mav.addObject("isValid", true);
+			mav.addObject("message", builder.toString());
+		} catch (Exception e) {
+			// 익셉션이 발생하면 유효하지 않음을 View Page를 통해 알림.
+			mav.addObject("isValid", false);
+			mav.addObject("meesage", e.getMessage());
+		}
+
+		return mav;
 	}
 }
